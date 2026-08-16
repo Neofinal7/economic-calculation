@@ -1,15 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Real Discretionary Index (RDI) & Vehicle Affordability Model</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    html[dir="rtl"],
+    html[dir="rtl"] * {
+      font-family: 'Cairo', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
     body {
@@ -36,6 +44,7 @@
       align-items: flex-end;
       border-bottom: 1px solid #1f1f24;
       padding-bottom: 14px;
+      gap: 16px;
     }
 
     .header-section h1 {
@@ -49,6 +58,41 @@
       font-size: 13px;
       color: #94a3b8;
       margin-top: 4px;
+    }
+
+    /* Language Switcher Button */
+    .lang-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background-color: #17171c;
+      color: #cbd5e1;
+      border: 1px solid #282830;
+      border-radius: 20px;
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .lang-btn:hover {
+      background-color: #22222b;
+      border-color: #3b82f6;
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .lang-btn:active {
+      transform: translateY(0);
+    }
+
+    .lang-btn svg {
+      width: 15px;
+      height: 15px;
+      stroke: currentColor;
     }
 
     /* 2-Column Inputs Section */
@@ -138,6 +182,10 @@
       width: 100%;
     }
 
+    html[dir="rtl"] .chart-wrapper {
+      padding: 20px 44px 16px 16px;
+    }
+
     .chart-columns-header {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -167,6 +215,15 @@
 
     .chart-panel:last-child {
       border-right: 1px solid #23232a;
+    }
+
+    html[dir="rtl"] .chart-panel {
+      border-left: none;
+      border-right: 1px solid #23232a;
+    }
+
+    html[dir="rtl"] .chart-panel:last-child {
+      border-left: 1px solid #23232a;
     }
 
     /* Grid vertical line at 50% */
@@ -201,6 +258,12 @@
       text-align: right;
     }
 
+    html[dir="rtl"] .country-label {
+      left: auto;
+      right: -34px;
+      text-align: left;
+    }
+
     .bar {
       height: 42px;
       border-radius: 9px;
@@ -226,6 +289,14 @@
       box-shadow: 0 3px 10px rgba(16, 185, 129, 0.32);
     }
 
+    html[dir="rtl"] .bar-c1 {
+      background: linear-gradient(270deg, #2563eb 0%, #60a5fa 100%);
+    }
+
+    html[dir="rtl"] .bar-c2 {
+      background: linear-gradient(270deg, #059669 0%, #34d399 100%);
+    }
+
     .bar-label {
       position: absolute;
       top: 50%;
@@ -245,6 +316,16 @@
       right: 12px;
       color: #ffffff;
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+    }
+
+    html[dir="rtl"] .bar-label.outside {
+      left: auto;
+      right: calc(100% + 8px);
+    }
+
+    html[dir="rtl"] .bar-label.inside {
+      right: auto;
+      left: 12px;
     }
 
     /* Axis Bottom */
@@ -273,11 +354,20 @@
       transform: translateX(-50%);
     }
 
+    html[dir="rtl"] .axis-ticks span:first-child {
+      left: auto;
+      right: 2px;
+    }
+
     .axis-legend {
       text-align: right;
       font-size: 11px;
       color: #64748b;
       margin-top: 12px;
+    }
+
+    html[dir="rtl"] .axis-legend {
+      text-align: left;
     }
 
     /* Floating Tooltip */
@@ -303,8 +393,18 @@
 
   <div class="header-section">
     <div>
-      <h1>Discretionary & Affordability Comparison Model</h1>
-      <p>Fill in country benchmarks to compare surplus, tech affordability, and vehicle affordability.</p>
+      <h1 id="header-title">Discretionary & Affordability Comparison Model</h1>
+      <p id="header-subtitle">Fill in country benchmarks to compare surplus, tech affordability, and vehicle affordability.</p>
+    </div>
+    <div>
+      <button id="lang-toggle-btn" class="lang-btn" onclick="toggleLanguage()" aria-label="Toggle language">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+        <span id="lang-btn-text">العربية</span>
+      </button>
     </div>
   </div>
 
@@ -314,31 +414,31 @@
     <div class="country-card">
       <div class="country-card-header">
         <span class="badge-dot badge-c1"></span>
-        <span>Country 1 (C1)</span>
+        <span id="c1-card-title">Country 1 (C1)</span>
       </div>
 
       <div class="input-row">
-        <label>C1 Income</label>
+        <label id="lbl-c1-income">C1 Income</label>
         <input type="number" id="c1-income" class="pill-input" value="48000" />
       </div>
       <div class="input-row">
-        <label>C1 Essentials</label>
+        <label id="lbl-c1-essentials">C1 Essentials</label>
         <input type="number" id="c1-essentials" class="pill-input" value="24000" />
       </div>
       <div class="input-row">
-        <label>C1 Social Gap</label>
+        <label id="lbl-c1-social">C1 Social Gap</label>
         <input type="number" id="c1-social" class="pill-input" value="6000" />
       </div>
       <div class="input-row">
-        <label>C1 Tech Basket</label>
+        <label id="lbl-c1-tech">C1 Tech Basket</label>
         <input type="number" id="c1-tech" class="pill-input" value="3000" />
       </div>
       <div class="input-row">
-        <label>C1 Vehicle Basket</label>
+        <label id="lbl-c1-vehicle">C1 Vehicle Basket</label>
         <input type="number" id="c1-vehicle" class="pill-input" value="25000" placeholder="Optional" />
       </div>
       <div class="input-row">
-        <label>C1 Annual Hours</label>
+        <label id="lbl-c1-hours">C1 Annual Hours</label>
         <input type="number" id="c1-hours" class="pill-input" value="1800" />
       </div>
     </div>
@@ -347,31 +447,31 @@
     <div class="country-card">
       <div class="country-card-header">
         <span class="badge-dot badge-c2"></span>
-        <span>Country 2 (C2)</span>
+        <span id="c2-card-title">Country 2 (C2)</span>
       </div>
 
       <div class="input-row">
-        <label>C2 Income</label>
+        <label id="lbl-c2-income">C2 Income</label>
         <input type="number" id="c2-income" class="pill-input" value="12000" />
       </div>
       <div class="input-row">
-        <label>C2 Essentials</label>
+        <label id="lbl-c2-essentials">C2 Essentials</label>
         <input type="number" id="c2-essentials" class="pill-input" value="6500" />
       </div>
       <div class="input-row">
-        <label>C2 Social Gap</label>
+        <label id="lbl-c2-social">C2 Social Gap</label>
         <input type="number" id="c2-social" class="pill-input" value="2000" />
       </div>
       <div class="input-row">
-        <label>C2 Tech Basket</label>
+        <label id="lbl-c2-tech">C2 Tech Basket</label>
         <input type="number" id="c2-tech" class="pill-input" value="3300" />
       </div>
       <div class="input-row">
-        <label>C2 Vehicle Basket</label>
+        <label id="lbl-c2-vehicle">C2 Vehicle Basket</label>
         <input type="number" id="c2-vehicle" class="pill-input" value="20000" placeholder="Optional" />
       </div>
       <div class="input-row">
-        <label>C2 Annual Hours</label>
+        <label id="lbl-c2-hours">C2 Annual Hours</label>
         <input type="number" id="c2-hours" class="pill-input" value="2150" />
       </div>
     </div>
@@ -380,10 +480,10 @@
   <!-- Multi-Panel Comparison Chart -->
   <div class="chart-wrapper">
     <div class="chart-columns-header">
-      <div>RDI Score</div>
-      <div>Surplus ($)</div>
-      <div>Tech Units</div>
-      <div>Vehicle Index (VAI)</div>
+      <div id="col-hdr-rdi">RDI Score</div>
+      <div id="col-hdr-surplus">Surplus ($)</div>
+      <div id="col-hdr-tech">Tech Units</div>
+      <div id="col-hdr-vai">Vehicle Index (VAI)</div>
     </div>
 
     <div class="chart-panels">
@@ -391,14 +491,14 @@
       <div class="chart-panel" id="panel-rdi">
         <div class="grid-line-mid"></div>
         <div class="row-track">
-          <span class="country-label">C1</span>
-          <div class="bar bar-c1" id="bar-c1-rdi" data-metric="RDI Score" data-country="C1">
+          <span class="country-label country-label-c1">C1</span>
+          <div class="bar bar-c1" id="bar-c1-rdi">
             <span class="bar-label" id="label-c1-rdi">6.0</span>
           </div>
         </div>
         <div class="row-track">
-          <span class="country-label">C2</span>
-          <div class="bar bar-c2" id="bar-c2-rdi" data-metric="RDI Score" data-country="C2">
+          <span class="country-label country-label-c2">C2</span>
+          <div class="bar bar-c2" id="bar-c2-rdi">
             <span class="bar-label" id="label-c2-rdi">0.9</span>
           </div>
         </div>
@@ -408,12 +508,12 @@
       <div class="chart-panel" id="panel-surplus">
         <div class="grid-line-mid"></div>
         <div class="row-track">
-          <div class="bar bar-c1" id="bar-c1-surplus" data-metric="Surplus ($)" data-country="C1">
+          <div class="bar bar-c1" id="bar-c1-surplus">
             <span class="bar-label" id="label-c1-surplus">18,000</span>
           </div>
         </div>
         <div class="row-track">
-          <div class="bar bar-c2" id="bar-c2-surplus" data-metric="Surplus ($)" data-country="C2">
+          <div class="bar bar-c2" id="bar-c2-surplus">
             <span class="bar-label" id="label-c2-surplus">3,500</span>
           </div>
         </div>
@@ -423,12 +523,12 @@
       <div class="chart-panel" id="panel-tech">
         <div class="grid-line-mid"></div>
         <div class="row-track">
-          <div class="bar bar-c1" id="bar-c1-tech" data-metric="Tech Units" data-country="C1">
+          <div class="bar bar-c1" id="bar-c1-tech">
             <span class="bar-label" id="label-c1-tech">6.0</span>
           </div>
         </div>
         <div class="row-track">
-          <div class="bar bar-c2" id="bar-c2-tech" data-metric="Tech Units" data-country="C2">
+          <div class="bar bar-c2" id="bar-c2-tech">
             <span class="bar-label" id="label-c2-tech">1.1</span>
           </div>
         </div>
@@ -438,12 +538,12 @@
       <div class="chart-panel" id="panel-vai">
         <div class="grid-line-mid"></div>
         <div class="row-track">
-          <div class="bar bar-c1" id="bar-c1-vai" data-metric="Vehicle Index (VAI)" data-country="C1">
+          <div class="bar bar-c1" id="bar-c1-vai">
             <span class="bar-label" id="label-c1-vai">0.72</span>
           </div>
         </div>
         <div class="row-track">
-          <div class="bar bar-c2" id="bar-c2-vai" data-metric="Vehicle Index (VAI)" data-country="C2">
+          <div class="bar bar-c2" id="bar-c2-vai">
             <span class="bar-label" id="label-c2-vai">0.15</span>
           </div>
         </div>
@@ -470,7 +570,7 @@
       </div>
     </div>
 
-    <div class="axis-legend">Value &rarr;</div>
+    <div class="axis-legend" id="axis-legend">Value &rarr;</div>
   </div>
 
 </div>
@@ -482,7 +582,133 @@
   const REF_HOURS = 1800;
   const tooltip = document.getElementById('tooltip');
 
+  const i18n = {
+    en: {
+      pageTitle: "Real Discretionary Index (RDI) & Vehicle Affordability Model",
+      headerTitle: "Discretionary & Affordability Comparison Model",
+      headerSubtitle: "Fill in country benchmarks to compare surplus, tech affordability, and vehicle affordability.",
+      langBtn: "العربية",
+      c1Title: "Country 1 (C1)",
+      c2Title: "Country 2 (C2)",
+      c1Label: "C1",
+      c2Label: "C2",
+      c1Income: "C1 Income",
+      c1Essentials: "C1 Essentials",
+      c1Social: "C1 Social Gap",
+      c1Tech: "C1 Tech Basket",
+      c1Vehicle: "C1 Vehicle Basket",
+      c1Hours: "C1 Annual Hours",
+      c2Income: "C2 Income",
+      c2Essentials: "C2 Essentials",
+      c2Social: "C2 Social Gap",
+      c2Tech: "C2 Tech Basket",
+      c2Vehicle: "C2 Vehicle Basket",
+      c2Hours: "C2 Annual Hours",
+      optional: "Optional",
+      colRdi: "RDI Score",
+      colSurplus: "Surplus ($)",
+      colTech: "Tech Units",
+      colVai: "Vehicle Index (VAI)",
+      valueLegend: "Value &rarr;",
+      pts: "pts",
+      units: "units",
+      adjustedHours: (hrs) => `Adjusted for ${hrs} annual hours`,
+      incomeTooltip: (inc) => `Income: $${inc.toLocaleString()}`,
+      basketTooltip: (basket) => `Basket: $${basket.toLocaleString()}`,
+      carBasketTooltip: (veh, yrs) => `Car Basket: $${veh.toLocaleString()} (${yrs} yrs of surplus)`,
+      noVehicle: "No vehicle basket entered"
+    },
+    ar: {
+      pageTitle: "مؤشر الدخل المتاح الحقيقي (RDI) ونموذج القدرة على شراء المركبات",
+      headerTitle: "نموذج مقارنة الفائض المالي والقدرة الشرائية",
+      headerSubtitle: "أدخل مؤشرات الدول لمقارنة الفائض المالي، والقدرة على شراء التكنولوجيا، وقدرة شراء المركبات.",
+      langBtn: "English",
+      c1Title: "الدولة الأولى (C1)",
+      c2Title: "الدولة الثانية (C2)",
+      c1Label: "C1",
+      c2Label: "C2",
+      c1Income: "دخل الدولة الأولى",
+      c1Essentials: "أساسيات الدولة الأولى",
+      c1Social: "الفجوة الاجتماعية للدولة الأولى",
+      c1Tech: "سلة التكنولوجيا للدولة الأولى",
+      c1Vehicle: "سلة المركبات للدولة الأولى",
+      c1Hours: "ساعات العمل السنوية (الأولى)",
+      c2Income: "دخل الدولة الثانية",
+      c2Essentials: "أساسيات الدولة الثانية",
+      c2Social: "الفجوة الاجتماعية للدولة الثانية",
+      c2Tech: "سلة التكنولوجيا للدولة الثانية",
+      c2Vehicle: "سلة المركبات للدولة الثانية",
+      c2Hours: "ساعات العمل السنوية (الثانية)",
+      optional: "اختياري",
+      colRdi: "مؤشر RDI",
+      colSurplus: "الفائض ($)",
+      colTech: "وحدات التكنولوجيا",
+      colVai: "مؤشر المركبات (VAI)",
+      valueLegend: "&larr; القيمة",
+      pts: "نقطة",
+      units: "وحدة",
+      adjustedHours: (hrs) => `معدل وفقاً لـ ${hrs} ساعة عمل سنوية`,
+      incomeTooltip: (inc) => `الدخل: $${inc.toLocaleString()}`,
+      basketTooltip: (basket) => `سعر السلة: $${basket.toLocaleString()}`,
+      carBasketTooltip: (veh, yrs) => `سلة المركبات: $${veh.toLocaleString()} (${yrs} سنة من الفائض)`,
+      noVehicle: "لم يتم إدخال سلة للمركبات"
+    }
+  };
+
+  let currentLang = 'en';
+
+  function setLanguage(lang) {
+    currentLang = lang;
+    const isAr = lang === 'ar';
+    document.documentElement.setAttribute('lang', lang);
+    document.documentElement.setAttribute('dir', isAr ? 'rtl' : 'ltr');
+
+    const t = i18n[lang];
+    document.title = t.pageTitle;
+    document.getElementById('header-title').innerText = t.headerTitle;
+    document.getElementById('header-subtitle').innerText = t.headerSubtitle;
+    document.getElementById('lang-btn-text').innerText = t.langBtn;
+
+    document.getElementById('c1-card-title').innerText = t.c1Title;
+    document.getElementById('c2-card-title').innerText = t.c2Title;
+
+    document.getElementById('lbl-c1-income').innerText = t.c1Income;
+    document.getElementById('lbl-c1-essentials').innerText = t.c1Essentials;
+    document.getElementById('lbl-c1-social').innerText = t.c1Social;
+    document.getElementById('lbl-c1-tech').innerText = t.c1Tech;
+    document.getElementById('lbl-c1-vehicle').innerText = t.c1Vehicle;
+    document.getElementById('lbl-c1-hours').innerText = t.c1Hours;
+
+    document.getElementById('lbl-c2-income').innerText = t.c2Income;
+    document.getElementById('lbl-c2-essentials').innerText = t.c2Essentials;
+    document.getElementById('lbl-c2-social').innerText = t.c2Social;
+    document.getElementById('lbl-c2-tech').innerText = t.c2Tech;
+    document.getElementById('lbl-c2-vehicle').innerText = t.c2Vehicle;
+    document.getElementById('lbl-c2-hours').innerText = t.c2Hours;
+
+    document.getElementById('c1-vehicle').placeholder = t.optional;
+    document.getElementById('c2-vehicle').placeholder = t.optional;
+
+    document.getElementById('col-hdr-rdi').innerText = t.colRdi;
+    document.getElementById('col-hdr-surplus').innerText = t.colSurplus;
+    document.getElementById('col-hdr-tech').innerText = t.colTech;
+    document.getElementById('col-hdr-vai').innerText = t.colVai;
+
+    document.querySelectorAll('.country-label-c1').forEach(el => el.innerText = t.c1Label);
+    document.querySelectorAll('.country-label-c2').forEach(el => el.innerText = t.c2Label);
+
+    document.getElementById('axis-legend').innerHTML = t.valueLegend;
+
+    calculate();
+  }
+
+  function toggleLanguage() {
+    setLanguage(currentLang === 'en' ? 'ar' : 'en');
+  }
+
   function calculate() {
+    const t = i18n[currentLang];
+
     const c1_inc = parseFloat(document.getElementById('c1-income').value) || 0;
     const c1_ess = parseFloat(document.getElementById('c1-essentials').value) || 0;
     const c1_soc = parseFloat(document.getElementById('c1-social').value) || 0;
@@ -530,7 +756,7 @@
     document.getElementById('tick-mid-vai').innerText = (maxVAIScale / 2).toFixed(maxVAIScale < 2 ? 2 : 1);
 
     // Update Bar Widths & Labels
-    const setBar = (barId, labelId, val, maxScale, displayText, unit, extraInfo) => {
+    const setBar = (barId, labelId, val, maxScale, displayText, unit, extraInfo, metricName, countryName) => {
       const bar = document.getElementById(barId);
       const label = document.getElementById(labelId);
       
@@ -550,36 +776,45 @@
       bar.dataset.val = displayText;
       bar.dataset.unit = unit;
       bar.dataset.extra = extraInfo || '';
+      bar.dataset.metric = metricName;
+      bar.dataset.country = countryName;
     };
 
-    setBar('bar-c1-rdi', 'label-c1-rdi', c1_rdi, maxRDIScale, c1_rdi.toFixed(1), 'pts', `Adjusted for ${c1_hrs} annual hours`);
-    setBar('bar-c2-rdi', 'label-c2-rdi', c2_rdi, maxRDIScale, c2_rdi.toFixed(1), 'pts', `Adjusted for ${c2_hrs} annual hours`);
+    setBar('bar-c1-rdi', 'label-c1-rdi', c1_rdi, maxRDIScale, c1_rdi.toFixed(1), t.pts, t.adjustedHours(c1_hrs), t.colRdi, t.c1Title);
+    setBar('bar-c2-rdi', 'label-c2-rdi', c2_rdi, maxRDIScale, c2_rdi.toFixed(1), t.pts, t.adjustedHours(c2_hrs), t.colRdi, t.c2Title);
 
-    setBar('bar-c1-surplus', 'label-c1-surplus', c1_surplus, maxSurplusScale, Math.round(c1_surplus).toLocaleString(), '', `Income: $${c1_inc.toLocaleString()}`);
-    setBar('bar-c2-surplus', 'label-c2-surplus', c2_surplus, maxSurplusScale, Math.round(c2_surplus).toLocaleString(), '', `Income: $${c2_inc.toLocaleString()}`);
+    setBar('bar-c1-surplus', 'label-c1-surplus', c1_surplus, maxSurplusScale, Math.round(c1_surplus).toLocaleString(), '', t.incomeTooltip(c1_inc), t.colSurplus, t.c1Title);
+    setBar('bar-c2-surplus', 'label-c2-surplus', c2_surplus, maxSurplusScale, Math.round(c2_surplus).toLocaleString(), '', t.incomeTooltip(c2_inc), t.colSurplus, t.c2Title);
 
-    setBar('bar-c1-tech', 'label-c1-tech', c1_tech_units, maxTechScale, c1_tech_units.toFixed(1), 'units', `Basket: $${c1_tech.toLocaleString()}`);
-    setBar('bar-c2-tech', 'label-c2-tech', c2_tech_units, maxTechScale, c2_tech_units.toFixed(1), 'units', `Basket: $${c2_tech.toLocaleString()}`);
+    setBar('bar-c1-tech', 'label-c1-tech', c1_tech_units, maxTechScale, c1_tech_units.toFixed(1), t.units, t.basketTooltip(c1_tech), t.colTech, t.c1Title);
+    setBar('bar-c2-tech', 'label-c2-tech', c2_tech_units, maxTechScale, c2_tech_units.toFixed(1), t.units, t.basketTooltip(c2_tech), t.colTech, t.c2Title);
 
     const c1_veh_yrs = c1_surplus > 0 && c1_veh > 0 ? (c1_veh / c1_surplus).toFixed(1) : 'N/A';
     const c2_veh_yrs = c2_surplus > 0 && c2_veh > 0 ? (c2_veh / c2_surplus).toFixed(1) : 'N/A';
 
-    setBar('bar-c1-vai', 'label-c1-vai', c1_vai, maxVAIScale, c1_veh > 0 ? c1_vai.toFixed(2) : '—', 'pts', c1_veh > 0 ? `Car Basket: $${c1_veh.toLocaleString()} (${c1_veh_yrs} yrs of surplus)` : 'No vehicle basket entered');
-    setBar('bar-c2-vai', 'label-c2-vai', c2_vai, maxVAIScale, c2_veh > 0 ? c2_vai.toFixed(2) : '—', 'pts', c2_veh > 0 ? `Car Basket: $${c2_veh.toLocaleString()} (${c2_veh_yrs} yrs of surplus)` : 'No vehicle basket entered');
+    setBar('bar-c1-vai', 'label-c1-vai', c1_vai, maxVAIScale, c1_veh > 0 ? c1_vai.toFixed(2) : '—', t.pts, c1_veh > 0 ? t.carBasketTooltip(c1_veh, c1_veh_yrs) : t.noVehicle, t.colVai, t.c1Title);
+    setBar('bar-c2-vai', 'label-c2-vai', c2_vai, maxVAIScale, c2_veh > 0 ? c2_vai.toFixed(2) : '—', t.pts, c2_veh > 0 ? t.carBasketTooltip(c2_veh, c2_veh_yrs) : t.noVehicle, t.colVai, t.c2Title);
   }
 
   // Hover Tooltip Handlers
   document.querySelectorAll('.bar').forEach(bar => {
     bar.addEventListener('mousemove', (e) => {
-      const country = bar.dataset.country;
-      const metric = bar.dataset.metric;
-      const val = bar.dataset.val;
-      const unit = bar.dataset.unit || '';
+      const country = bar.dataset.country || '';
+      const metric = bar.dataset.metric || '';
+      const val = bar.dataset.val || '';
+      const unit = bar.dataset.unit ? ' ' + bar.dataset.unit : '';
       const extra = bar.dataset.extra ? `<br/><span style="color:#94a3b8;font-size:11px;">${bar.dataset.extra}</span>` : '';
 
-      tooltip.innerHTML = `<strong>${country}</strong> &bull; ${metric}: <strong>${val} ${unit}</strong>${extra}`;
+      tooltip.innerHTML = `<strong>${country}</strong> &bull; ${metric}: <strong>${val}${unit}</strong>${extra}`;
       tooltip.style.display = 'block';
-      tooltip.style.left = (e.clientX + 14) + 'px';
+
+      // Tooltip position handling
+      const isRtl = document.documentElement.getAttribute('dir') === 'rtl';
+      if (isRtl) {
+        tooltip.style.left = Math.max(10, e.clientX - tooltip.offsetWidth - 14) + 'px';
+      } else {
+        tooltip.style.left = (e.clientX + 14) + 'px';
+      }
       tooltip.style.top = (e.clientY + 14) + 'px';
     });
 
@@ -593,6 +828,7 @@
     input.addEventListener('input', calculate);
   });
 
+  // Initial calculation
   calculate();
 </script>
 
