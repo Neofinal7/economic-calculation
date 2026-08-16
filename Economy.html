@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Real Discretionary Index (RDI) Model</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #0b0b0d;
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+    }
+
+    .widget-container {
+      width: 100%;
+      max-width: 950px;
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+    }
+
+    /* 2-Column Inputs Section */
+    .inputs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 40px;
+      row-gap: 16px;
+    }
+
+    @media (max-width: 720px) {
+      .inputs-grid {
+        grid-template-columns: 1fr;
+        row-gap: 12px;
+      }
+    }
+
+    .input-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .input-row label {
+      font-size: 15px;
+      font-weight: 500;
+      color: #eaeaea;
+      white-space: nowrap;
+    }
+
+    .pill-input {
+      flex: 1;
+      max-width: 260px;
+      background-color: #161619;
+      border: 1px solid #232328;
+      border-radius: 24px;
+      padding: 10px 18px;
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 500;
+      outline: none;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+
+    .pill-input:focus {
+      border-color: #3b82f6;
+      background-color: #1a1a1f;
+    }
+
+    /* Chart Section */
+    .chart-wrapper {
+      position: relative;
+      background-color: #0b0b0d;
+      border-radius: 8px;
+      padding: 10px 0;
+      user-select: none;
+    }
+
+    .chart-columns-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: #d1d5db;
+      margin-bottom: 12px;
+    }
+
+    .chart-panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      position: relative;
+      min-height: 280px;
+    }
+
+    .chart-panel {
+      position: relative;
+      border-left: 1px solid #26262a;
+      height: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      padding: 20px 0;
+    }
+
+    .chart-panel:last-child {
+      border-right: 1px solid #26262a;
+    }
+
+    /* Grid vertical line at 50% (~10,000 mark) */
+    .grid-line-mid {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 1px;
+      background-color: #26262a;
+      pointer-events: none;
+    }
+
+    .row-track {
+      position: relative;
+      height: 70px;
+      display: flex;
+      align-items: center;
+    }
+
+    .country-label {
+      position: absolute;
+      left: -28px;
+      font-size: 13px;
+      color: #9ca3af;
+      font-weight: 500;
+    }
+
+    .bar {
+      height: 100%;
+      border-radius: 0px;
+      transition: width 0.25s ease-out;
+      cursor: pointer;
+      position: relative;
+      min-width: 2px;
+    }
+
+    .bar-c1 {
+      background-color: #60a5fa;
+    }
+
+    .bar-c2 {
+      background-color: #34d399;
+    }
+
+    .bar-label {
+      position: absolute;
+      left: calc(100% + 8px);
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 13px;
+      font-weight: 500;
+      color: #f3f4f6;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    /* Axis Bottom */
+    .chart-axis-bottom {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      margin-top: 8px;
+      font-size: 12px;
+      color: #71717a;
+    }
+
+    .axis-ticks {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 4px;
+      position: relative;
+    }
+
+    .axis-ticks span:last-child {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .axis-legend {
+      text-align: right;
+      font-size: 12px;
+      color: #71717a;
+      margin-top: 14px;
+    }
+
+    /* Floating Tooltip */
+    .tooltip {
+      position: fixed;
+      background: #1e1e24;
+      border: 1px solid #33333d;
+      color: #ffffff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      pointer-events: none;
+      display: none;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+  </style>
+</head>
+<body>
+
+<div class="widget-container">
+
+  <!-- Inputs Matching the screenshot layout -->
+  <div class="inputs-grid">
+    <!-- Row 1 -->
+    <div class="input-row">
+      <label>C1 Income</label>
+      <input type="number" id="c1-income" class="pill-input" value="48000" />
+    </div>
+    <div class="input-row">
+      <label>C1 Essentials</label>
+      <input type="number" id="c1-essentials" class="pill-input" value="24000" />
+    </div>
+
+    <!-- Row 2 -->
+    <div class="input-row">
+      <label>C1 Social Gap</label>
+      <input type="number" id="c1-social" class="pill-input" value="6000" />
+    </div>
+    <div class="input-row">
+      <label>C1 Tech Basket</label>
+      <input type="number" id="c1-tech" class="pill-input" value="3000" />
+    </div>
+
+    <!-- Row 3 -->
+    <div class="input-row">
+      <label>C1 Annual Hours</label>
+      <input type="number" id="c1-hours" class="pill-input" value="1800" />
+    </div>
+    <div class="input-row">
+      <label>C2 Income</label>
+      <input type="number" id="c2-income" class="pill-input" value="12000" />
+    </div>
+
+    <!-- Row 4 -->
+    <div class="input-row">
+      <label>C2 Essentials</label>
+      <input type="number" id="c2-essentials" class="pill-input" value="6500" />
+    </div>
+    <div class="input-row">
+      <label>C2 Social Gap</label>
+      <input type="number" id="c2-social" class="pill-input" value="2000" />
+    </div>
+
+    <!-- Row 5 -->
+    <div class="input-row">
+      <label>C2 Tech Basket</label>
+      <input type="number" id="c2-tech" class="pill-input" value="3300" />
+    </div>
+    <div class="input-row">
+      <label>C2 Annual Hours</label>
+      <input type="number" id="c2-hours" class="pill-input" value="2150" />
+    </div>
+  </div>
+
+  <!-- Multi-Panel Comparison Chart -->
+  <div class="chart-wrapper">
+    <div class="chart-columns-header">
+      <div>RDI Score</div>
+      <div>Surplus ($)</div>
+      <div>Tech Units</div>
+    </div>
+
+    <div class="chart-panels">
+      <!-- Panel 1: RDI Score -->
+      <div class="chart-panel" id="panel-rdi">
+        <div class="grid-line-mid"></div>
+        <div class="row-track">
+          <span class="country-label">C1</span>
+          <div class="bar bar-c1" id="bar-c1-rdi" data-metric="RDI Score" data-country="C1"></div>
+          <span class="bar-label" id="label-c1-rdi">6.0</span>
+        </div>
+        <div class="row-track">
+          <span class="country-label">C2</span>
+          <div class="bar bar-c2" id="bar-c2-rdi" data-metric="RDI Score" data-country="C2"></div>
+          <span class="bar-label" id="label-c2-rdi">0.9</span>
+        </div>
+      </div>
+
+      <!-- Panel 2: Surplus ($) -->
+      <div class="chart-panel" id="panel-surplus">
+        <div class="grid-line-mid"></div>
+        <div class="row-track">
+          <div class="bar bar-c1" id="bar-c1-surplus" data-metric="Surplus ($)" data-country="C1"></div>
+          <span class="bar-label" id="label-c1-surplus">18,000</span>
+        </div>
+        <div class="row-track">
+          <div class="bar bar-c2" id="bar-c2-surplus" data-metric="Surplus ($)" data-country="C2"></div>
+          <span class="bar-label" id="label-c2-surplus">3,500</span>
+        </div>
+      </div>
+
+      <!-- Panel 3: Tech Units -->
+      <div class="chart-panel" id="panel-tech">
+        <div class="grid-line-mid"></div>
+        <div class="row-track">
+          <div class="bar bar-c1" id="bar-c1-tech" data-metric="Tech Units" data-country="C1"></div>
+          <span class="bar-label" id="label-c1-tech">6.0</span>
+        </div>
+        <div class="row-track">
+          <div class="bar bar-c2" id="bar-c2-tech" data-metric="Tech Units" data-country="C2"></div>
+          <span class="bar-label" id="label-c2-tech">1.1</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Ticks -->
+    <div class="chart-axis-bottom">
+      <div class="axis-ticks">
+        <span>0</span>
+        <span>10,000</span>
+      </div>
+      <div class="axis-ticks">
+        <span>0</span>
+        <span>10,000</span>
+      </div>
+      <div class="axis-ticks">
+        <span>0</span>
+        <span>10,000</span>
+      </div>
+    </div>
+
+    <div class="axis-legend">Value &rarr;</div>
+  </div>
+
+</div>
+
+<!-- Hover Tooltip -->
+<div id="tooltip" class="tooltip"></div>
+
+<script>
+  const REF_HOURS = 1800;
+  const MAX_SURPLUS_SCALE = 24000; 
+  const MAX_SCORE_SCALE = 10;     
+
+  const tooltip = document.getElementById('tooltip');
+
+  function calculate() {
+    const c1_inc = parseFloat(document.getElementById('c1-income').value) || 0;
+    const c1_ess = parseFloat(document.getElementById('c1-essentials').value) || 0;
+    const c1_soc = parseFloat(document.getElementById('c1-social').value) || 0;
+    const c1_tech = parseFloat(document.getElementById('c1-tech').value) || 1;
+    const c1_hrs = parseFloat(document.getElementById('c1-hours').value) || 1800;
+
+    const c2_inc = parseFloat(document.getElementById('c2-income').value) || 0;
+    const c2_ess = parseFloat(document.getElementById('c2-essentials').value) || 0;
+    const c2_soc = parseFloat(document.getElementById('c2-social').value) || 0;
+    const c2_tech = parseFloat(document.getElementById('c2-tech').value) || 1;
+    const c2_hrs = parseFloat(document.getElementById('c2-hours').value) || 1800;
+
+    // Formulas
+    const c1_surplus = c1_inc - (c1_ess + c1_soc);
+    const c1_tech_units = c1_tech > 0 ? c1_surplus / c1_tech : 0;
+    const c1_rdi = c1_tech_units * (REF_HOURS / (c1_hrs || 1800));
+
+    const c2_surplus = c2_inc - (c2_ess + c2_soc);
+    const c2_tech_units = c2_tech > 0 ? c2_surplus / c2_tech : 0;
+    const c2_rdi = c2_tech_units * (REF_HOURS / (c2_hrs || 1800));
+
+    // Update Text Labels
+    document.getElementById('label-c1-rdi').innerText = c1_rdi.toFixed(1);
+    document.getElementById('label-c2-rdi').innerText = c2_rdi.toFixed(1);
+
+    document.getElementById('label-c1-surplus').innerText = Math.round(c1_surplus).toLocaleString();
+    document.getElementById('label-c2-surplus').innerText = Math.round(c2_surplus).toLocaleString();
+
+    document.getElementById('label-c1-tech').innerText = c1_tech_units.toFixed(1);
+    document.getElementById('label-c2-tech').innerText = c2_tech_units.toFixed(1);
+
+    // Calculate Bar Widths (proportional to container width)
+    const setWidth = (elemId, val, maxVal, rawVal, unit) => {
+      const elem = document.getElementById(elemId);
+      const pct = Math.max(0, Math.min(88, (val / maxVal) * 80)); 
+      elem.style.width = pct + '%';
+      elem.dataset.val = rawVal;
+      elem.dataset.unit = unit;
+    };
+
+    setWidth('bar-c1-rdi', c1_rdi, MAX_SCORE_SCALE, c1_rdi.toFixed(2), 'pts');
+    setWidth('bar-c2-rdi', c2_rdi, MAX_SCORE_SCALE, c2_rdi.toFixed(2), 'pts');
+
+    setWidth('bar-c1-surplus', c1_surplus, MAX_SURPLUS_SCALE, '$' + Math.round(c1_surplus).toLocaleString(), '');
+    setWidth('bar-c2-surplus', c2_surplus, MAX_SURPLUS_SCALE, '$' + Math.round(c2_surplus).toLocaleString(), '');
+
+    setWidth('bar-c1-tech', c1_tech_units, MAX_SCORE_SCALE, c1_tech_units.toFixed(2), 'units');
+    setWidth('bar-c2-tech', c2_tech_units, MAX_SCORE_SCALE, c2_tech_units.toFixed(2), 'units');
+  }
+
+  // Hover Tooltip Handlers
+  document.querySelectorAll('.bar').forEach(bar => {
+    bar.addEventListener('mousemove', (e) => {
+      const country = bar.dataset.country;
+      const metric = bar.dataset.metric;
+      const val = bar.dataset.val;
+      const unit = bar.dataset.unit || '';
+
+      tooltip.innerHTML = `<strong>${country}</strong> &bull; ${metric}: <strong>${val} ${unit}</strong>`;
+      tooltip.style.display = 'block';
+      tooltip.style.left = (e.clientX + 12) + 'px';
+      tooltip.style.top = (e.clientY + 12) + 'px';
+    });
+
+    bar.addEventListener('mouseleave', () => {
+      tooltip.style.display = 'none';
+    });
+  });
+
+  // Attach input listeners
+  document.querySelectorAll('.pill-input').forEach(input => {
+    input.addEventListener('input', calculate);
+  });
+
+  calculate();
+</script>
+
+</body>
+</html>
