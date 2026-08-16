@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Real Discretionary Index (RDI) Model</title>
+  <title>Real Discretionary Index (RDI) & Vehicle Affordability Model</title>
   <style>
     * {
       box-sizing: border-box;
@@ -19,55 +19,104 @@
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      padding: 40px 20px;
+      padding: 30px 16px;
     }
 
     .widget-container {
       width: 100%;
-      max-width: 950px;
+      max-width: 980px;
       display: flex;
       flex-direction: column;
-      gap: 36px;
+      gap: 28px;
+    }
+
+    .header-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 1px solid #1f1f24;
+      padding-bottom: 14px;
+    }
+
+    .header-section h1 {
+      font-size: 19px;
+      font-weight: 600;
+      color: #f8fafc;
+      letter-spacing: -0.01em;
+    }
+
+    .header-section p {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-top: 4px;
     }
 
     /* 2-Column Inputs Section */
-    .inputs-grid {
+    .countries-inputs-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      column-gap: 40px;
-      row-gap: 16px;
+      gap: 24px;
     }
 
     @media (max-width: 720px) {
-      .inputs-grid {
+      .countries-inputs-grid {
         grid-template-columns: 1fr;
-        row-gap: 12px;
+        gap: 16px;
       }
     }
+
+    .country-card {
+      background-color: #111114;
+      border: 1px solid #1e1e24;
+      border-radius: 14px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .country-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #1f1f26;
+    }
+
+    .badge-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .badge-c1 { background-color: #60a5fa; }
+    .badge-c2 { background-color: #34d399; }
 
     .input-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
     }
 
     .input-row label {
-      font-size: 15px;
+      font-size: 13.5px;
       font-weight: 500;
-      color: #eaeaea;
+      color: #cbd5e1;
       white-space: nowrap;
     }
 
     .pill-input {
       flex: 1;
-      max-width: 260px;
-      background-color: #161619;
-      border: 1px solid #232328;
-      border-radius: 24px;
-      padding: 10px 18px;
+      max-width: 200px;
+      background-color: #17171c;
+      border: 1px solid #282830;
+      border-radius: 20px;
+      padding: 7px 14px;
       color: #ffffff;
-      font-size: 15px;
+      font-size: 13.5px;
       font-weight: 500;
       outline: none;
       transition: border-color 0.2s, background-color 0.2s;
@@ -75,82 +124,88 @@
 
     .pill-input:focus {
       border-color: #3b82f6;
-      background-color: #1a1a1f;
+      background-color: #1e1e26;
     }
 
     /* Chart Section */
     .chart-wrapper {
       position: relative;
-      background-color: #0b0b0d;
-      border-radius: 8px;
-      padding: 10px 0;
+      background-color: #111114;
+      border: 1px solid #1e1e24;
+      border-radius: 14px;
+      padding: 20px 16px 16px 44px; /* 44px left padding so C1/C2 labels are fully visible */
       user-select: none;
+      width: 100%;
     }
 
     .chart-columns-header {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: repeat(4, 1fr);
       text-align: center;
-      font-size: 13px;
-      font-weight: 500;
-      color: #d1d5db;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #e2e8f0;
       margin-bottom: 12px;
     }
 
     .chart-panels {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: repeat(4, 1fr);
       position: relative;
-      min-height: 280px;
+      height: 240px;
     }
 
     .chart-panel {
       position: relative;
-      border-left: 1px solid #26262a;
-      height: 280px;
+      border-left: 1px solid #23232a;
+      height: 100%;
       display: flex;
       flex-direction: column;
       justify-content: space-around;
-      padding: 20px 0;
+      padding: 12px 0;
     }
 
     .chart-panel:last-child {
-      border-right: 1px solid #26262a;
+      border-right: 1px solid #23232a;
     }
 
-    /* Grid vertical line at 50% (~10,000 mark) */
+    /* Grid vertical line at 50% */
     .grid-line-mid {
       position: absolute;
       top: 0;
       bottom: 0;
       left: 50%;
       width: 1px;
-      background-color: #26262a;
+      background-color: #202027;
       pointer-events: none;
     }
 
     .row-track {
       position: relative;
-      height: 70px;
+      height: 54px;
       display: flex;
       align-items: center;
+      width: 100%;
     }
 
     .country-label {
       position: absolute;
-      left: -28px;
+      left: -32px;
       font-size: 13px;
-      color: #9ca3af;
-      font-weight: 500;
+      color: #94a3b8;
+      font-weight: 600;
+      width: 24px;
+      text-align: right;
     }
 
     .bar {
       height: 100%;
-      border-radius: 0px;
       transition: width 0.25s ease-out;
       cursor: pointer;
       position: relative;
       min-width: 2px;
+      display: flex;
+      align-items: center;
     }
 
     .bar-c1 {
@@ -163,30 +218,44 @@
 
     .bar-label {
       position: absolute;
-      left: calc(100% + 8px);
       top: 50%;
       transform: translateY(-50%);
-      font-size: 13px;
-      font-weight: 500;
-      color: #f3f4f6;
+      font-size: 12px;
+      font-weight: 600;
+      color: #ffffff;
       white-space: nowrap;
       pointer-events: none;
+    }
+
+    .bar-label.outside {
+      left: calc(100% + 6px);
+      color: #f3f4f6;
+    }
+
+    .bar-label.inside {
+      right: 8px;
+      color: #0b0b0d;
+      font-weight: 700;
     }
 
     /* Axis Bottom */
     .chart-axis-bottom {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: repeat(4, 1fr);
       margin-top: 8px;
-      font-size: 12px;
-      color: #71717a;
+      font-size: 11px;
+      color: #64748b;
     }
 
     .axis-ticks {
-      display: flex;
-      justify-content: space-between;
-      padding: 0 4px;
       position: relative;
+      height: 16px;
+      padding: 0 4px;
+    }
+
+    .axis-ticks span:first-child {
+      position: absolute;
+      left: 2px;
     }
 
     .axis-ticks span:last-child {
@@ -197,24 +266,25 @@
 
     .axis-legend {
       text-align: right;
-      font-size: 12px;
-      color: #71717a;
-      margin-top: 14px;
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 12px;
     }
 
     /* Floating Tooltip */
     .tooltip {
       position: fixed;
-      background: #1e1e24;
-      border: 1px solid #33333d;
+      background: #18181f;
+      border: 1px solid #33333f;
       color: #ffffff;
-      padding: 6px 12px;
-      border-radius: 6px;
+      padding: 8px 14px;
+      border-radius: 8px;
       font-size: 12px;
+      line-height: 1.5;
       pointer-events: none;
       display: none;
       z-index: 100;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
     }
   </style>
 </head>
@@ -222,56 +292,79 @@
 
 <div class="widget-container">
 
-  <!-- Inputs Matching the screenshot layout -->
-  <div class="inputs-grid">
-    <!-- Row 1 -->
-    <div class="input-row">
-      <label>C1 Income</label>
-      <input type="number" id="c1-income" class="pill-input" value="48000" />
+  <div class="header-section">
+    <div>
+      <h1>Discretionary & Affordability Comparison Model</h1>
+      <p>Fill in country benchmarks to compare surplus, tech affordability, and vehicle affordability.</p>
     </div>
-    <div class="input-row">
-      <label>C1 Essentials</label>
-      <input type="number" id="c1-essentials" class="pill-input" value="24000" />
+  </div>
+
+  <!-- 2-Column Inputs Section -->
+  <div class="countries-inputs-grid">
+    <!-- Country 1 Card -->
+    <div class="country-card">
+      <div class="country-card-header">
+        <span class="badge-dot badge-c1"></span>
+        <span>Country 1 (C1)</span>
+      </div>
+
+      <div class="input-row">
+        <label>C1 Income</label>
+        <input type="number" id="c1-income" class="pill-input" value="48000" />
+      </div>
+      <div class="input-row">
+        <label>C1 Essentials</label>
+        <input type="number" id="c1-essentials" class="pill-input" value="24000" />
+      </div>
+      <div class="input-row">
+        <label>C1 Social Gap</label>
+        <input type="number" id="c1-social" class="pill-input" value="6000" />
+      </div>
+      <div class="input-row">
+        <label>C1 Tech Basket</label>
+        <input type="number" id="c1-tech" class="pill-input" value="3000" />
+      </div>
+      <div class="input-row">
+        <label>C1 Vehicle Basket</label>
+        <input type="number" id="c1-vehicle" class="pill-input" value="25000" placeholder="Optional" />
+      </div>
+      <div class="input-row">
+        <label>C1 Annual Hours</label>
+        <input type="number" id="c1-hours" class="pill-input" value="1800" />
+      </div>
     </div>
 
-    <!-- Row 2 -->
-    <div class="input-row">
-      <label>C1 Social Gap</label>
-      <input type="number" id="c1-social" class="pill-input" value="6000" />
-    </div>
-    <div class="input-row">
-      <label>C1 Tech Basket</label>
-      <input type="number" id="c1-tech" class="pill-input" value="3000" />
-    </div>
+    <!-- Country 2 Card -->
+    <div class="country-card">
+      <div class="country-card-header">
+        <span class="badge-dot badge-c2"></span>
+        <span>Country 2 (C2)</span>
+      </div>
 
-    <!-- Row 3 -->
-    <div class="input-row">
-      <label>C1 Annual Hours</label>
-      <input type="number" id="c1-hours" class="pill-input" value="1800" />
-    </div>
-    <div class="input-row">
-      <label>C2 Income</label>
-      <input type="number" id="c2-income" class="pill-input" value="12000" />
-    </div>
-
-    <!-- Row 4 -->
-    <div class="input-row">
-      <label>C2 Essentials</label>
-      <input type="number" id="c2-essentials" class="pill-input" value="6500" />
-    </div>
-    <div class="input-row">
-      <label>C2 Social Gap</label>
-      <input type="number" id="c2-social" class="pill-input" value="2000" />
-    </div>
-
-    <!-- Row 5 -->
-    <div class="input-row">
-      <label>C2 Tech Basket</label>
-      <input type="number" id="c2-tech" class="pill-input" value="3300" />
-    </div>
-    <div class="input-row">
-      <label>C2 Annual Hours</label>
-      <input type="number" id="c2-hours" class="pill-input" value="2150" />
+      <div class="input-row">
+        <label>C2 Income</label>
+        <input type="number" id="c2-income" class="pill-input" value="12000" />
+      </div>
+      <div class="input-row">
+        <label>C2 Essentials</label>
+        <input type="number" id="c2-essentials" class="pill-input" value="6500" />
+      </div>
+      <div class="input-row">
+        <label>C2 Social Gap</label>
+        <input type="number" id="c2-social" class="pill-input" value="2000" />
+      </div>
+      <div class="input-row">
+        <label>C2 Tech Basket</label>
+        <input type="number" id="c2-tech" class="pill-input" value="3300" />
+      </div>
+      <div class="input-row">
+        <label>C2 Vehicle Basket</label>
+        <input type="number" id="c2-vehicle" class="pill-input" value="20000" placeholder="Optional" />
+      </div>
+      <div class="input-row">
+        <label>C2 Annual Hours</label>
+        <input type="number" id="c2-hours" class="pill-input" value="2150" />
+      </div>
     </div>
   </div>
 
@@ -281,6 +374,7 @@
       <div>RDI Score</div>
       <div>Surplus ($)</div>
       <div>Tech Units</div>
+      <div>Vehicle Index (VAI)</div>
     </div>
 
     <div class="chart-panels">
@@ -289,13 +383,15 @@
         <div class="grid-line-mid"></div>
         <div class="row-track">
           <span class="country-label">C1</span>
-          <div class="bar bar-c1" id="bar-c1-rdi" data-metric="RDI Score" data-country="C1"></div>
-          <span class="bar-label" id="label-c1-rdi">6.0</span>
+          <div class="bar bar-c1" id="bar-c1-rdi" data-metric="RDI Score" data-country="C1">
+            <span class="bar-label" id="label-c1-rdi">6.0</span>
+          </div>
         </div>
         <div class="row-track">
           <span class="country-label">C2</span>
-          <div class="bar bar-c2" id="bar-c2-rdi" data-metric="RDI Score" data-country="C2"></div>
-          <span class="bar-label" id="label-c2-rdi">0.9</span>
+          <div class="bar bar-c2" id="bar-c2-rdi" data-metric="RDI Score" data-country="C2">
+            <span class="bar-label" id="label-c2-rdi">0.9</span>
+          </div>
         </div>
       </div>
 
@@ -303,12 +399,14 @@
       <div class="chart-panel" id="panel-surplus">
         <div class="grid-line-mid"></div>
         <div class="row-track">
-          <div class="bar bar-c1" id="bar-c1-surplus" data-metric="Surplus ($)" data-country="C1"></div>
-          <span class="bar-label" id="label-c1-surplus">18,000</span>
+          <div class="bar bar-c1" id="bar-c1-surplus" data-metric="Surplus ($)" data-country="C1">
+            <span class="bar-label" id="label-c1-surplus">18,000</span>
+          </div>
         </div>
         <div class="row-track">
-          <div class="bar bar-c2" id="bar-c2-surplus" data-metric="Surplus ($)" data-country="C2"></div>
-          <span class="bar-label" id="label-c2-surplus">3,500</span>
+          <div class="bar bar-c2" id="bar-c2-surplus" data-metric="Surplus ($)" data-country="C2">
+            <span class="bar-label" id="label-c2-surplus">3,500</span>
+          </div>
         </div>
       </div>
 
@@ -316,29 +414,50 @@
       <div class="chart-panel" id="panel-tech">
         <div class="grid-line-mid"></div>
         <div class="row-track">
-          <div class="bar bar-c1" id="bar-c1-tech" data-metric="Tech Units" data-country="C1"></div>
-          <span class="bar-label" id="label-c1-tech">6.0</span>
+          <div class="bar bar-c1" id="bar-c1-tech" data-metric="Tech Units" data-country="C1">
+            <span class="bar-label" id="label-c1-tech">6.0</span>
+          </div>
         </div>
         <div class="row-track">
-          <div class="bar bar-c2" id="bar-c2-tech" data-metric="Tech Units" data-country="C2"></div>
-          <span class="bar-label" id="label-c2-tech">1.1</span>
+          <div class="bar bar-c2" id="bar-c2-tech" data-metric="Tech Units" data-country="C2">
+            <span class="bar-label" id="label-c2-tech">1.1</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 4: Vehicle Index (VAI) -->
+      <div class="chart-panel" id="panel-vai">
+        <div class="grid-line-mid"></div>
+        <div class="row-track">
+          <div class="bar bar-c1" id="bar-c1-vai" data-metric="Vehicle Index (VAI)" data-country="C1">
+            <span class="bar-label" id="label-c1-vai">0.72</span>
+          </div>
+        </div>
+        <div class="row-track">
+          <div class="bar bar-c2" id="bar-c2-vai" data-metric="Vehicle Index (VAI)" data-country="C2">
+            <span class="bar-label" id="label-c2-vai">0.15</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Bottom Ticks -->
+    <!-- Bottom Ticks (0 on left, mid-point under center line) -->
     <div class="chart-axis-bottom">
-      <div class="axis-ticks">
+      <div class="axis-ticks" id="ticks-rdi">
         <span>0</span>
-        <span>10,000</span>
+        <span id="tick-mid-rdi">5</span>
       </div>
-      <div class="axis-ticks">
+      <div class="axis-ticks" id="ticks-surplus">
         <span>0</span>
-        <span>10,000</span>
+        <span id="tick-mid-surplus">10,000</span>
       </div>
-      <div class="axis-ticks">
+      <div class="axis-ticks" id="ticks-tech">
         <span>0</span>
-        <span>10,000</span>
+        <span id="tick-mid-tech">5</span>
+      </div>
+      <div class="axis-ticks" id="ticks-vai">
+        <span>0</span>
+        <span id="tick-mid-vai">0.5</span>
       </div>
     </div>
 
@@ -352,60 +471,92 @@
 
 <script>
   const REF_HOURS = 1800;
-  const MAX_SURPLUS_SCALE = 24000; 
-  const MAX_SCORE_SCALE = 10;     
-
   const tooltip = document.getElementById('tooltip');
 
   function calculate() {
     const c1_inc = parseFloat(document.getElementById('c1-income').value) || 0;
     const c1_ess = parseFloat(document.getElementById('c1-essentials').value) || 0;
     const c1_soc = parseFloat(document.getElementById('c1-social').value) || 0;
-    const c1_tech = parseFloat(document.getElementById('c1-tech').value) || 1;
+    const c1_tech = parseFloat(document.getElementById('c1-tech').value) || 0;
+    const c1_veh = parseFloat(document.getElementById('c1-vehicle').value) || 0;
     const c1_hrs = parseFloat(document.getElementById('c1-hours').value) || 1800;
 
     const c2_inc = parseFloat(document.getElementById('c2-income').value) || 0;
     const c2_ess = parseFloat(document.getElementById('c2-essentials').value) || 0;
     const c2_soc = parseFloat(document.getElementById('c2-social').value) || 0;
-    const c2_tech = parseFloat(document.getElementById('c2-tech').value) || 1;
+    const c2_tech = parseFloat(document.getElementById('c2-tech').value) || 0;
+    const c2_veh = parseFloat(document.getElementById('c2-vehicle').value) || 0;
     const c2_hrs = parseFloat(document.getElementById('c2-hours').value) || 1800;
 
     // Formulas
+    // 1. Surplus = Income - (Essentials + Social Gap)
     const c1_surplus = c1_inc - (c1_ess + c1_soc);
+    const c2_surplus = c2_inc - (c2_ess + c2_soc);
+
+    // 2. Tech Units & RDI
     const c1_tech_units = c1_tech > 0 ? c1_surplus / c1_tech : 0;
     const c1_rdi = c1_tech_units * (REF_HOURS / (c1_hrs || 1800));
 
-    const c2_surplus = c2_inc - (c2_ess + c2_soc);
     const c2_tech_units = c2_tech > 0 ? c2_surplus / c2_tech : 0;
     const c2_rdi = c2_tech_units * (REF_HOURS / (c2_hrs || 1800));
 
-    // Update Text Labels
-    document.getElementById('label-c1-rdi').innerText = c1_rdi.toFixed(1);
-    document.getElementById('label-c2-rdi').innerText = c2_rdi.toFixed(1);
+    // 3. Vehicle Units & Vehicle Affordability Index (VAI)
+    const c1_veh_units = c1_veh > 0 ? c1_surplus / c1_veh : 0;
+    const c1_vai = c1_veh > 0 ? c1_veh_units * (REF_HOURS / (c1_hrs || 1800)) : 0;
 
-    document.getElementById('label-c1-surplus').innerText = Math.round(c1_surplus).toLocaleString();
-    document.getElementById('label-c2-surplus').innerText = Math.round(c2_surplus).toLocaleString();
+    const c2_veh_units = c2_veh > 0 ? c2_surplus / c2_veh : 0;
+    const c2_vai = c2_veh > 0 ? c2_veh_units * (REF_HOURS / (c2_hrs || 1800)) : 0;
 
-    document.getElementById('label-c1-tech').innerText = c1_tech_units.toFixed(1);
-    document.getElementById('label-c2-tech').innerText = c2_tech_units.toFixed(1);
+    // Scale calculation: determine max scale where 50% width = mid-value
+    const maxRDIScale = Math.max(10, c1_rdi * 1.35, c2_rdi * 1.35);
+    const maxSurplusScale = Math.max(20000, c1_surplus * 1.35, c2_surplus * 1.35);
+    const maxTechScale = Math.max(10, c1_tech_units * 1.35, c2_tech_units * 1.35);
+    const maxVAIScale = Math.max(1.0, c1_vai * 1.35, c2_vai * 1.35);
 
-    // Calculate Bar Widths (proportional to container width)
-    const setWidth = (elemId, val, maxVal, rawVal, unit) => {
-      const elem = document.getElementById(elemId);
-      const pct = Math.max(0, Math.min(88, (val / maxVal) * 80)); 
-      elem.style.width = pct + '%';
-      elem.dataset.val = rawVal;
-      elem.dataset.unit = unit;
+    // Update mid-axis ticks (at 50% line)
+    document.getElementById('tick-mid-rdi').innerText = (maxRDIScale / 2).toFixed(maxRDIScale < 20 ? 1 : 0);
+    const midSurplus = Math.round((maxSurplusScale / 2) / 1000) * 1000;
+    document.getElementById('tick-mid-surplus').innerText = midSurplus.toLocaleString();
+    document.getElementById('tick-mid-tech').innerText = (maxTechScale / 2).toFixed(maxTechScale < 20 ? 1 : 0);
+    document.getElementById('tick-mid-vai').innerText = (maxVAIScale / 2).toFixed(maxVAIScale < 2 ? 2 : 1);
+
+    // Update Bar Widths & Labels
+    const setBar = (barId, labelId, val, maxScale, displayText, unit, extraInfo) => {
+      const bar = document.getElementById(barId);
+      const label = document.getElementById(labelId);
+      
+      // Calculate width percentage (50% = maxScale / 2)
+      const pct = maxScale > 0 ? Math.max(0, Math.min(88, (val / maxScale) * 100)) : 0;
+      bar.style.width = pct + '%';
+      
+      label.innerText = displayText;
+      
+      // If bar is wide enough (> 42%), place label inside; otherwise place outside
+      if (pct > 42) {
+        label.className = 'bar-label inside';
+      } else {
+        label.className = 'bar-label outside';
+      }
+
+      bar.dataset.val = displayText;
+      bar.dataset.unit = unit;
+      bar.dataset.extra = extraInfo || '';
     };
 
-    setWidth('bar-c1-rdi', c1_rdi, MAX_SCORE_SCALE, c1_rdi.toFixed(2), 'pts');
-    setWidth('bar-c2-rdi', c2_rdi, MAX_SCORE_SCALE, c2_rdi.toFixed(2), 'pts');
+    setBar('bar-c1-rdi', 'label-c1-rdi', c1_rdi, maxRDIScale, c1_rdi.toFixed(1), 'pts', `Adjusted for ${c1_hrs} annual hours`);
+    setBar('bar-c2-rdi', 'label-c2-rdi', c2_rdi, maxRDIScale, c2_rdi.toFixed(1), 'pts', `Adjusted for ${c2_hrs} annual hours`);
 
-    setWidth('bar-c1-surplus', c1_surplus, MAX_SURPLUS_SCALE, '$' + Math.round(c1_surplus).toLocaleString(), '');
-    setWidth('bar-c2-surplus', c2_surplus, MAX_SURPLUS_SCALE, '$' + Math.round(c2_surplus).toLocaleString(), '');
+    setBar('bar-c1-surplus', 'label-c1-surplus', c1_surplus, maxSurplusScale, Math.round(c1_surplus).toLocaleString(), '', `Income: $${c1_inc.toLocaleString()}`);
+    setBar('bar-c2-surplus', 'label-c2-surplus', c2_surplus, maxSurplusScale, Math.round(c2_surplus).toLocaleString(), '', `Income: $${c2_inc.toLocaleString()}`);
 
-    setWidth('bar-c1-tech', c1_tech_units, MAX_SCORE_SCALE, c1_tech_units.toFixed(2), 'units');
-    setWidth('bar-c2-tech', c2_tech_units, MAX_SCORE_SCALE, c2_tech_units.toFixed(2), 'units');
+    setBar('bar-c1-tech', 'label-c1-tech', c1_tech_units, maxTechScale, c1_tech_units.toFixed(1), 'units', `Basket: $${c1_tech.toLocaleString()}`);
+    setBar('bar-c2-tech', 'label-c2-tech', c2_tech_units, maxTechScale, c2_tech_units.toFixed(1), 'units', `Basket: $${c2_tech.toLocaleString()}`);
+
+    const c1_veh_yrs = c1_surplus > 0 && c1_veh > 0 ? (c1_veh / c1_surplus).toFixed(1) : 'N/A';
+    const c2_veh_yrs = c2_surplus > 0 && c2_veh > 0 ? (c2_veh / c2_surplus).toFixed(1) : 'N/A';
+
+    setBar('bar-c1-vai', 'label-c1-vai', c1_vai, maxVAIScale, c1_veh > 0 ? c1_vai.toFixed(2) : '—', 'pts', c1_veh > 0 ? `Car Basket: $${c1_veh.toLocaleString()} (${c1_veh_yrs} yrs of surplus)` : 'No vehicle basket entered');
+    setBar('bar-c2-vai', 'label-c2-vai', c2_vai, maxVAIScale, c2_veh > 0 ? c2_vai.toFixed(2) : '—', 'pts', c2_veh > 0 ? `Car Basket: $${c2_veh.toLocaleString()} (${c2_veh_yrs} yrs of surplus)` : 'No vehicle basket entered');
   }
 
   // Hover Tooltip Handlers
@@ -415,11 +566,12 @@
       const metric = bar.dataset.metric;
       const val = bar.dataset.val;
       const unit = bar.dataset.unit || '';
+      const extra = bar.dataset.extra ? `<br/><span style="color:#94a3b8;font-size:11px;">${bar.dataset.extra}</span>` : '';
 
-      tooltip.innerHTML = `<strong>${country}</strong> &bull; ${metric}: <strong>${val} ${unit}</strong>`;
+      tooltip.innerHTML = `<strong>${country}</strong> &bull; ${metric}: <strong>${val} ${unit}</strong>${extra}`;
       tooltip.style.display = 'block';
-      tooltip.style.left = (e.clientX + 12) + 'px';
-      tooltip.style.top = (e.clientY + 12) + 'px';
+      tooltip.style.left = (e.clientX + 14) + 'px';
+      tooltip.style.top = (e.clientY + 14) + 'px';
     });
 
     bar.addEventListener('mouseleave', () => {
