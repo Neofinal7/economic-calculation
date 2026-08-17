@@ -188,7 +188,7 @@
 
     .chart-columns-header {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       text-align: center;
       font-size: 12.5px;
       font-weight: 600;
@@ -196,9 +196,22 @@
       margin-bottom: 12px;
     }
 
+    @media (max-width: 720px) {
+      .countries-inputs-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .chart-columns-header {
+        font-size: 11px;
+      }
+      .chart-axis-bottom {
+        font-size: 10px;
+      }
+    }
+
     .chart-panels {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       position: relative;
       height: 270px;
     }
@@ -331,7 +344,7 @@
     /* Axis Bottom */
     .chart-axis-bottom {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       margin-top: 8px;
       font-size: 11px;
       color: #64748b;
@@ -394,7 +407,7 @@
   <div class="header-section">
     <div>
       <h1 id="header-title">Discretionary & Affordability Comparison Model</h1>
-      <p id="header-subtitle">Fill in country benchmarks to compare surplus, tech affordability, and vehicle affordability.</p>
+      <p id="header-subtitle">Fill in country benchmarks to compare surplus, extra spending (dinner index), tech affordability, and vehicle affordability.</p>
     </div>
     <div>
       <button id="lang-toggle-btn" class="lang-btn" onclick="toggleLanguage()" aria-label="Toggle language">
@@ -430,6 +443,10 @@
         <input type="number" id="c1-social" class="pill-input" value="6000" />
       </div>
       <div class="input-row">
+        <label id="lbl-c1-dinner">C1 Dinner Price</label>
+        <input type="number" id="c1-dinner" class="pill-input" value="30" />
+      </div>
+      <div class="input-row">
         <label id="lbl-c1-tech">C1 Tech Basket</label>
         <input type="number" id="c1-tech" class="pill-input" value="3000" />
       </div>
@@ -463,6 +480,10 @@
         <input type="number" id="c2-social" class="pill-input" value="2000" />
       </div>
       <div class="input-row">
+        <label id="lbl-c2-dinner">C2 Dinner Price</label>
+        <input type="number" id="c2-dinner" class="pill-input" value="10" />
+      </div>
+      <div class="input-row">
         <label id="lbl-c2-tech">C2 Tech Basket</label>
         <input type="number" id="c2-tech" class="pill-input" value="3300" />
       </div>
@@ -482,6 +503,7 @@
     <div class="chart-columns-header">
       <div id="col-hdr-rdi">RDI Score</div>
       <div id="col-hdr-surplus">Surplus ($)</div>
+      <div id="col-hdr-dinner">Dinner Index</div>
       <div id="col-hdr-tech">Tech Units</div>
       <div id="col-hdr-vai">Vehicle Index (VAI)</div>
     </div>
@@ -519,7 +541,22 @@
         </div>
       </div>
 
-      <!-- Panel 3: Tech Units -->
+      <!-- Panel 3: Dinner Index -->
+      <div class="chart-panel" id="panel-dinner">
+        <div class="grid-line-mid"></div>
+        <div class="row-track">
+          <div class="bar bar-c1" id="bar-c1-dinner">
+            <span class="bar-label" id="label-c1-dinner">600</span>
+          </div>
+        </div>
+        <div class="row-track">
+          <div class="bar bar-c2" id="bar-c2-dinner">
+            <span class="bar-label" id="label-c2-dinner">293</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 4: Tech Units -->
       <div class="chart-panel" id="panel-tech">
         <div class="grid-line-mid"></div>
         <div class="row-track">
@@ -534,7 +571,7 @@
         </div>
       </div>
 
-      <!-- Panel 4: Vehicle Index (VAI) -->
+      <!-- Panel 5: Vehicle Index (VAI) -->
       <div class="chart-panel" id="panel-vai">
         <div class="grid-line-mid"></div>
         <div class="row-track">
@@ -560,6 +597,10 @@
         <span>0</span>
         <span id="tick-mid-surplus">10,000</span>
       </div>
+      <div class="axis-ticks" id="ticks-dinner">
+        <span>0</span>
+        <span id="tick-mid-dinner">400</span>
+      </div>
       <div class="axis-ticks" id="ticks-tech">
         <span>0</span>
         <span id="tick-mid-tech">5</span>
@@ -584,9 +625,9 @@
 
   const i18n = {
     en: {
-      pageTitle: "Real Discretionary Index (RDI) & Vehicle Affordability Model",
+      pageTitle: "Real Discretionary Index (RDI) & Multi-Pillar Affordability Model",
       headerTitle: "Discretionary & Affordability Comparison Model",
-      headerSubtitle: "Fill in country benchmarks to compare surplus, tech affordability, and vehicle affordability.",
+      headerSubtitle: "Fill in country benchmarks to compare holistic RDI, surplus margin, lifestyle dining, tech, and vehicle affordability.",
       langBtn: "العربية",
       c1Title: "Country 1 (C1)",
       c2Title: "Country 2 (C2)",
@@ -595,33 +636,40 @@
       c1Income: "C1 Income",
       c1Essentials: "C1 Essentials",
       c1Social: "C1 Social Gap",
+      c1Dinner: "C1 Dinner Price",
       c1Tech: "C1 Tech Basket",
       c1Vehicle: "C1 Vehicle Basket",
       c1Hours: "C1 Annual Hours",
       c2Income: "C2 Income",
       c2Essentials: "C2 Essentials",
       c2Social: "C2 Social Gap",
+      c2Dinner: "C2 Dinner Price",
       c2Tech: "C2 Tech Basket",
       c2Vehicle: "C2 Vehicle Basket",
       c2Hours: "C2 Annual Hours",
       optional: "Optional",
-      colRdi: "RDI Score",
-      colSurplus: "Surplus ($)",
+      colRdi: "Holistic RDI",
+      colSurplus: "Surplus ($ & %)",
+      colDinner: "Dinner Index",
       colTech: "Tech Units",
       colVai: "Vehicle Index (VAI)",
       valueLegend: "Value &rarr;",
       pts: "pts",
       units: "units",
+      dinners: "dinners",
       adjustedHours: (hrs) => `Adjusted for ${hrs} annual hours`,
       incomeTooltip: (inc) => `Income: $${inc.toLocaleString()}`,
+      surplusTooltip: (surplus, margin, inc, ess) => `Surplus: $${surplus.toLocaleString()} (${margin}% of income)<br/>Essentials & Gap: $${ess.toLocaleString()}`,
+      rdiTooltip: (essB, dinB, techU, vehU, hrs) => `Essentials buffer: ${essB}x | Dinners: ${dinB} pkgs<br/>Tech: ${techU}x | Vehicle: ${vehU}x<br/>Adjusted for ${hrs} hrs`,
       basketTooltip: (basket) => `Basket: $${basket.toLocaleString()}`,
+      dinnerTooltip: (price, total) => `Dinner: $${price} (${Math.round(total).toLocaleString()} dinners/yr)`,
       carBasketTooltip: (veh, yrs) => `Car Basket: $${veh.toLocaleString()} (${yrs} yrs of surplus)`,
       noVehicle: "No vehicle basket entered"
     },
     ar: {
-      pageTitle: "مؤشر الدخل المتاح الحقيقي (RDI) ونموذج القدرة على شراء المركبات",
-      headerTitle: "نموذج مقارنة الفائض المالي والقدرة الشرائية",
-      headerSubtitle: "أدخل مؤشرات الدول لمقارنة الفائض المالي، والقدرة على شراء التكنولوجيا، وقدرة شراء المركبات.",
+      pageTitle: "مؤشر الدخل المتاح الحقيقي (RDI) الشامل ونموذج القدرة الشرائية",
+      headerTitle: "نموذج مقارنة الفائض المالي والقدرة الشرائية الشاملة",
+      headerSubtitle: "أدخل مؤشرات الدول لحساب مؤشر RDI الشامل (الأساسيات، العشاء، التكنولوجيا، المركبات) وهوامش الفائض.",
       langBtn: "English",
       c1Title: "الدولة الأولى (C1)",
       c2Title: "الدولة الثانية (C2)",
@@ -630,26 +678,33 @@
       c1Income: "دخل الدولة الأولى",
       c1Essentials: "أساسيات الدولة الأولى",
       c1Social: "الفجوة الاجتماعية للدولة الأولى",
+      c1Dinner: "سعر العشاء للدولة الأولى",
       c1Tech: "سلة التكنولوجيا للدولة الأولى",
       c1Vehicle: "سلة المركبات للدولة الأولى",
       c1Hours: "ساعات العمل السنوية (الأولى)",
       c2Income: "دخل الدولة الثانية",
       c2Essentials: "أساسيات الدولة الثانية",
       c2Social: "الفجوة الاجتماعية للدولة الثانية",
+      c2Dinner: "سعر العشاء للدولة الثانية",
       c2Tech: "سلة التكنولوجيا للدولة الثانية",
       c2Vehicle: "سلة المركبات للدولة الثانية",
       c2Hours: "ساعات العمل السنوية (الثانية)",
       optional: "اختياري",
-      colRdi: "مؤشر RDI",
-      colSurplus: "الفائض ($)",
+      colRdi: "مؤشر RDI الشامل",
+      colSurplus: "الفائض ($ والنسبة)",
+      colDinner: "مؤشر العشاء",
       colTech: "وحدات التكنولوجيا",
       colVai: "مؤشر المركبات (VAI)",
       valueLegend: "&larr; القيمة",
       pts: "نقطة",
       units: "وحدة",
+      dinners: "وجبة",
       adjustedHours: (hrs) => `معدل وفقاً لـ ${hrs} ساعة عمل سنوية`,
       incomeTooltip: (inc) => `الدخل: $${inc.toLocaleString()}`,
+      surplusTooltip: (surplus, margin, inc, ess) => `الفائض: $${surplus.toLocaleString()} (${margin}% من الدخل)<br/>الأساسيات والفجوة: $${ess.toLocaleString()}`,
+      rdiTooltip: (essB, dinB, techU, vehU, hrs) => `احتياطي الأساسيات: ${essB}x | العشاء: ${dinB} حزمة<br/>التكنولوجيا: ${techU}x | المركبات: ${vehU}x<br/>معدل لـ ${hrs} ساعة عمل`,
       basketTooltip: (basket) => `سعر السلة: $${basket.toLocaleString()}`,
+      dinnerTooltip: (price, total) => `سعر العشاء: $${price} (${Math.round(total).toLocaleString()} وجبة/سنة)`,
       carBasketTooltip: (veh, yrs) => `سلة المركبات: $${veh.toLocaleString()} (${yrs} سنة من الفائض)`,
       noVehicle: "لم يتم إدخال سلة للمركبات"
     }
@@ -675,6 +730,7 @@
     document.getElementById('lbl-c1-income').innerText = t.c1Income;
     document.getElementById('lbl-c1-essentials').innerText = t.c1Essentials;
     document.getElementById('lbl-c1-social').innerText = t.c1Social;
+    document.getElementById('lbl-c1-dinner').innerText = t.c1Dinner;
     document.getElementById('lbl-c1-tech').innerText = t.c1Tech;
     document.getElementById('lbl-c1-vehicle').innerText = t.c1Vehicle;
     document.getElementById('lbl-c1-hours').innerText = t.c1Hours;
@@ -682,6 +738,7 @@
     document.getElementById('lbl-c2-income').innerText = t.c2Income;
     document.getElementById('lbl-c2-essentials').innerText = t.c2Essentials;
     document.getElementById('lbl-c2-social').innerText = t.c2Social;
+    document.getElementById('lbl-c2-dinner').innerText = t.c2Dinner;
     document.getElementById('lbl-c2-tech').innerText = t.c2Tech;
     document.getElementById('lbl-c2-vehicle').innerText = t.c2Vehicle;
     document.getElementById('lbl-c2-hours').innerText = t.c2Hours;
@@ -691,6 +748,7 @@
 
     document.getElementById('col-hdr-rdi').innerText = t.colRdi;
     document.getElementById('col-hdr-surplus').innerText = t.colSurplus;
+    document.getElementById('col-hdr-dinner').innerText = t.colDinner;
     document.getElementById('col-hdr-tech').innerText = t.colTech;
     document.getElementById('col-hdr-vai').innerText = t.colVai;
 
@@ -712,6 +770,7 @@
     const c1_inc = parseFloat(document.getElementById('c1-income').value) || 0;
     const c1_ess = parseFloat(document.getElementById('c1-essentials').value) || 0;
     const c1_soc = parseFloat(document.getElementById('c1-social').value) || 0;
+    const c1_din = parseFloat(document.getElementById('c1-dinner').value) || 0;
     const c1_tech = parseFloat(document.getElementById('c1-tech').value) || 0;
     const c1_veh = parseFloat(document.getElementById('c1-vehicle').value) || 0;
     const c1_hrs = parseFloat(document.getElementById('c1-hours').value) || 1800;
@@ -719,32 +778,68 @@
     const c2_inc = parseFloat(document.getElementById('c2-income').value) || 0;
     const c2_ess = parseFloat(document.getElementById('c2-essentials').value) || 0;
     const c2_soc = parseFloat(document.getElementById('c2-social').value) || 0;
+    const c2_din = parseFloat(document.getElementById('c2-dinner').value) || 0;
     const c2_tech = parseFloat(document.getElementById('c2-tech').value) || 0;
     const c2_veh = parseFloat(document.getElementById('c2-vehicle').value) || 0;
     const c2_hrs = parseFloat(document.getElementById('c2-hours').value) || 1800;
 
     // Formulas
-    // 1. Surplus = Income - (Essentials + Social Gap)
-    const c1_surplus = c1_inc - (c1_ess + c1_soc);
-    const c2_surplus = c2_inc - (c2_ess + c2_soc);
+    // 1. Surplus = Income - (Essentials + Social Gap) & Surplus Margin
+    const c1_base_costs = c1_ess + c1_soc;
+    const c2_base_costs = c2_ess + c2_soc;
 
-    // 2. Tech Units & RDI
+    const c1_surplus = c1_inc - c1_base_costs;
+    const c2_surplus = c2_inc - c2_base_costs;
+
+    const c1_margin = c1_inc > 0 ? (c1_surplus / c1_inc) * 100 : 0;
+    const c2_margin = c2_inc > 0 ? (c2_surplus / c2_inc) * 100 : 0;
+
+    // Pillar 1: Essentials Buffer (how many times surplus covers baseline costs)
+    const c1_ess_buffer = c1_base_costs > 0 ? c1_surplus / c1_base_costs : 0;
+    const c2_ess_buffer = c2_base_costs > 0 ? c2_surplus / c2_base_costs : 0;
+
+    // Pillar 2: Dinner Index & Units (normalized to standard 50 dinners/yr basket)
+    const c1_din_units = c1_din > 0 ? c1_surplus / c1_din : 0;
+    const c1_din_pkg = c1_din > 0 ? c1_surplus / (c1_din * 50) : 0;
+    const c1_din_idx = c1_din > 0 ? c1_din_units * (REF_HOURS / (c1_hrs || 1800)) : 0;
+
+    const c2_din_units = c2_din > 0 ? c2_surplus / c2_din : 0;
+    const c2_din_pkg = c2_din > 0 ? c2_surplus / (c2_din * 50) : 0;
+    const c2_din_idx = c2_din > 0 ? c2_din_units * (REF_HOURS / (c2_hrs || 1800)) : 0;
+
+    // Pillar 3: Tech Basket Units
     const c1_tech_units = c1_tech > 0 ? c1_surplus / c1_tech : 0;
-    const c1_rdi = c1_tech_units * (REF_HOURS / (c1_hrs || 1800));
-
     const c2_tech_units = c2_tech > 0 ? c2_surplus / c2_tech : 0;
-    const c2_rdi = c2_tech_units * (REF_HOURS / (c2_hrs || 1800));
 
-    // 3. Vehicle Units & Vehicle Affordability Index (VAI)
+    // Pillar 4: Vehicle Index (VAI) & Annualized Vehicle Capacity (20% of car value / yr)
     const c1_veh_units = c1_veh > 0 ? c1_surplus / c1_veh : 0;
+    const c1_veh_annual = c1_veh > 0 ? c1_surplus / (c1_veh * 0.20) : 0;
     const c1_vai = c1_veh > 0 ? c1_veh_units * (REF_HOURS / (c1_hrs || 1800)) : 0;
 
     const c2_veh_units = c2_veh > 0 ? c2_surplus / c2_veh : 0;
+    const c2_veh_annual = c2_veh > 0 ? c2_surplus / (c2_veh * 0.20) : 0;
     const c2_vai = c2_veh > 0 ? c2_veh_units * (REF_HOURS / (c2_hrs || 1800)) : 0;
+
+    // Comprehensive Holistic RDI Composite (integrating Essentials, Dinners, Tech, and Vehicles)
+    const computeCompositeRDI = (essBuf, dinPkg, techU, vehAnn, vehPrice, hours) => {
+      let rawScore;
+      if (vehPrice > 0) {
+        // 4-pillar equal weighting (25% each)
+        rawScore = (essBuf * 0.25) + (dinPkg * 0.25) + (techU * 0.25) + (vehAnn * 0.25);
+      } else {
+        // 3-pillar weighting without vehicle
+        rawScore = (essBuf / 3) + (dinPkg / 3) + (techU / 3);
+      }
+      return Math.max(0, rawScore * (REF_HOURS / (hours || 1800)));
+    };
+
+    const c1_rdi = computeCompositeRDI(c1_ess_buffer, c1_din_pkg, c1_tech_units, c1_veh_annual, c1_veh, c1_hrs);
+    const c2_rdi = computeCompositeRDI(c2_ess_buffer, c2_din_pkg, c2_tech_units, c2_veh_annual, c2_veh, c2_hrs);
 
     // Scale calculation: determine max scale where 50% width = mid-value
     const maxRDIScale = Math.max(10, c1_rdi * 1.35, c2_rdi * 1.35);
     const maxSurplusScale = Math.max(20000, c1_surplus * 1.35, c2_surplus * 1.35);
+    const maxDinnerScale = Math.max(200, c1_din_idx * 1.35, c2_din_idx * 1.35);
     const maxTechScale = Math.max(10, c1_tech_units * 1.35, c2_tech_units * 1.35);
     const maxVAIScale = Math.max(1.0, c1_vai * 1.35, c2_vai * 1.35);
 
@@ -752,6 +847,8 @@
     document.getElementById('tick-mid-rdi').innerText = (maxRDIScale / 2).toFixed(maxRDIScale < 20 ? 1 : 0);
     const midSurplus = Math.round((maxSurplusScale / 2) / 1000) * 1000;
     document.getElementById('tick-mid-surplus').innerText = midSurplus.toLocaleString();
+    const midDinner = Math.round((maxDinnerScale / 2) / 50) * 50;
+    document.getElementById('tick-mid-dinner').innerText = midDinner.toLocaleString();
     document.getElementById('tick-mid-tech').innerText = (maxTechScale / 2).toFixed(maxTechScale < 20 ? 1 : 0);
     document.getElementById('tick-mid-vai').innerText = (maxVAIScale / 2).toFixed(maxVAIScale < 2 ? 2 : 1);
 
@@ -780,20 +877,48 @@
       bar.dataset.country = countryName;
     };
 
-    setBar('bar-c1-rdi', 'label-c1-rdi', c1_rdi, maxRDIScale, c1_rdi.toFixed(1), t.pts, t.adjustedHours(c1_hrs), t.colRdi, t.c1Title);
-    setBar('bar-c2-rdi', 'label-c2-rdi', c2_rdi, maxRDIScale, c2_rdi.toFixed(1), t.pts, t.adjustedHours(c2_hrs), t.colRdi, t.c2Title);
+    // RDI bars
+    setBar('bar-c1-rdi', 'label-c1-rdi', c1_rdi, maxRDIScale, c1_rdi.toFixed(1), t.pts, 
+      t.rdiTooltip(c1_ess_buffer.toFixed(2), c1_din_pkg.toFixed(1), c1_tech_units.toFixed(1), c1_veh > 0 ? c1_veh_annual.toFixed(1) : '—', c1_hrs), 
+      t.colRdi, t.c1Title);
 
-    setBar('bar-c1-surplus', 'label-c1-surplus', c1_surplus, maxSurplusScale, Math.round(c1_surplus).toLocaleString(), '', t.incomeTooltip(c1_inc), t.colSurplus, t.c1Title);
-    setBar('bar-c2-surplus', 'label-c2-surplus', c2_surplus, maxSurplusScale, Math.round(c2_surplus).toLocaleString(), '', t.incomeTooltip(c2_inc), t.colSurplus, t.c2Title);
+    setBar('bar-c2-rdi', 'label-c2-rdi', c2_rdi, maxRDIScale, c2_rdi.toFixed(1), t.pts, 
+      t.rdiTooltip(c2_ess_buffer.toFixed(2), c2_din_pkg.toFixed(1), c2_tech_units.toFixed(1), c2_veh > 0 ? c2_veh_annual.toFixed(1) : '—', c2_hrs), 
+      t.colRdi, t.c2Title);
 
-    setBar('bar-c1-tech', 'label-c1-tech', c1_tech_units, maxTechScale, c1_tech_units.toFixed(1), t.units, t.basketTooltip(c1_tech), t.colTech, t.c1Title);
-    setBar('bar-c2-tech', 'label-c2-tech', c2_tech_units, maxTechScale, c2_tech_units.toFixed(1), t.units, t.basketTooltip(c2_tech), t.colTech, t.c2Title);
+    // Surplus bars (displaying $ amount and margin %)
+    const c1_surplus_text = `$${Math.round(c1_surplus).toLocaleString()} (${Math.round(c1_margin)}%)`;
+    const c2_surplus_text = `$${Math.round(c2_surplus).toLocaleString()} (${Math.round(c2_margin)}%)`;
 
+    setBar('bar-c1-surplus', 'label-c1-surplus', c1_surplus, maxSurplusScale, c1_surplus_text, '', 
+      t.surplusTooltip(c1_surplus, c1_margin.toFixed(1), c1_inc, c1_base_costs), t.colSurplus, t.c1Title);
+
+    setBar('bar-c2-surplus', 'label-c2-surplus', c2_surplus, maxSurplusScale, c2_surplus_text, '', 
+      t.surplusTooltip(c2_surplus, c2_margin.toFixed(1), c2_inc, c2_base_costs), t.colSurplus, t.c2Title);
+
+    // Dinner bars
+    setBar('bar-c1-dinner', 'label-c1-dinner', c1_din_idx, maxDinnerScale, Math.round(c1_din_idx).toLocaleString(), t.pts, 
+      c1_din > 0 ? t.dinnerTooltip(c1_din, c1_din_units) : '', t.colDinner, t.c1Title);
+
+    setBar('bar-c2-dinner', 'label-c2-dinner', c2_din_idx, maxDinnerScale, Math.round(c2_din_idx).toLocaleString(), t.pts, 
+      c2_din > 0 ? t.dinnerTooltip(c2_din, c2_din_units) : '', t.colDinner, t.c2Title);
+
+    // Tech bars
+    setBar('bar-c1-tech', 'label-c1-tech', c1_tech_units, maxTechScale, c1_tech_units.toFixed(1), t.units, 
+      t.basketTooltip(c1_tech), t.colTech, t.c1Title);
+
+    setBar('bar-c2-tech', 'label-c2-tech', c2_tech_units, maxTechScale, c2_tech_units.toFixed(1), t.units, 
+      t.basketTooltip(c2_tech), t.colTech, t.c2Title);
+
+    // Vehicle bars
     const c1_veh_yrs = c1_surplus > 0 && c1_veh > 0 ? (c1_veh / c1_surplus).toFixed(1) : 'N/A';
     const c2_veh_yrs = c2_surplus > 0 && c2_veh > 0 ? (c2_veh / c2_surplus).toFixed(1) : 'N/A';
 
-    setBar('bar-c1-vai', 'label-c1-vai', c1_vai, maxVAIScale, c1_veh > 0 ? c1_vai.toFixed(2) : '—', t.pts, c1_veh > 0 ? t.carBasketTooltip(c1_veh, c1_veh_yrs) : t.noVehicle, t.colVai, t.c1Title);
-    setBar('bar-c2-vai', 'label-c2-vai', c2_vai, maxVAIScale, c2_veh > 0 ? c2_vai.toFixed(2) : '—', t.pts, c2_veh > 0 ? t.carBasketTooltip(c2_veh, c2_veh_yrs) : t.noVehicle, t.colVai, t.c2Title);
+    setBar('bar-c1-vai', 'label-c1-vai', c1_vai, maxVAIScale, c1_veh > 0 ? c1_vai.toFixed(2) : '—', t.pts, 
+      c1_veh > 0 ? t.carBasketTooltip(c1_veh, c1_veh_yrs) : t.noVehicle, t.colVai, t.c1Title);
+
+    setBar('bar-c2-vai', 'label-c2-vai', c2_vai, maxVAIScale, c2_veh > 0 ? c2_vai.toFixed(2) : '—', t.pts, 
+      c2_veh > 0 ? t.carBasketTooltip(c2_veh, c2_veh_yrs) : t.noVehicle, t.colVai, t.c2Title);
   }
 
   // Hover Tooltip Handlers
